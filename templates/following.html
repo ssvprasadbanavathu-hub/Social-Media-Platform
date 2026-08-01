@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}People followed by {{ target_user.username }} – MyFriend{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-connecthub p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-user-check text-info me-2"></i> People @{{ target_user.username }} Follows
+                    </h5>
+                    <a href="{% url 'profile' username=target_user.username %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Profile
+                    </a>
+                </div>
+
+                {% if following_relations %}
+                    <div class="row g-3">
+                        {% for rel in following_relations %}
+                        <div class="col-md-6">
+                            <div class="card card-connecthub p-3 h-100">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <a href="{% url 'profile' username=rel.following.username %}">
+                                            <img src="{{ rel.following.profile.avatar_url }}" class="avatar-md" alt="Avatar">
+                                        </a>
+                                        <div>
+                                            <a href="{% url 'profile' username=rel.following.username %}" class="fw-bold text-decoration-none text-reset d-block">
+                                                {{ rel.following.get_full_name|default:rel.following.username }}
+                                            </a>
+                                            <span class="text-muted small">@{{ rel.following.username }}</span>
+                                        </div>
+                                    </div>
+
+                                    {% if rel.following != user %}
+                                    <button class="btn btn-sm btn-follow-trigger {% if rel.following.id in user_following_ids %}btn-secondary{% else %}btn-accent{% endif %} py-1 px-3" data-user-id="{{ rel.following.id }}">
+                                        {% if rel.following.id in user_following_ids %}
+                                        Following
+                                        {% else %}
+                                        Follow
+                                        {% endif %}
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-user-plus display-4 mb-3"></i>
+                        <p class="mb-0">Not following anyone yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

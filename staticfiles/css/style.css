@@ -1,0 +1,307 @@
+/* MyFriend Custom Theme & Visual Branding System */
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0d9488 50%, #7c3aed 100%);
+    --accent-blue: #0284c7;
+    --accent-teal: #0d9488;
+    --accent-purple: #7c3aed;
+    --accent-hover: #0369a1;
+    --heart-color: #f43f5e;
+    --bookmark-color: #f59e0b;
+    --whatsapp-color: #25d366;
+    
+    --bg-body-light: #f8fafc;
+    --bg-card-light: #ffffff;
+    --text-primary-light: #0f172a;
+    --text-secondary-light: #64748b;
+    --border-color-light: #e2e8f0;
+    --glass-bg-light: rgba(255, 255, 255, 0.88);
+
+    --bg-body-dark: #090d16;
+    --bg-card-dark: #131c2e;
+    --text-primary-dark: #f8fafc;
+    --text-secondary-dark: #94a3b8;
+    --border-color-dark: #1e293b;
+    --glass-bg-dark: rgba(19, 28, 46, 0.88);
+    
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-body-light);
+    color: var(--text-primary-light);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+[data-bs-theme="dark"] body {
+    background-color: var(--bg-body-dark);
+    color: var(--text-primary-dark);
+}
+
+/* Glassmorphism Navbar */
+.navbar-myfriend {
+    background: var(--glass-bg-light);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-color-light);
+    transition: all var(--transition-fast);
+}
+
+[data-bs-theme="dark"] .navbar-myfriend {
+    background: var(--glass-bg-dark);
+    border-bottom-color: var(--border-color-dark);
+}
+
+.brand-gradient {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+/* Brand Icon Badge */
+.brand-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+/* Search Bar */
+.search-input-group {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50rem;
+    padding: 0.25rem 0.75rem;
+    transition: all var(--transition-fast);
+}
+
+[data-bs-theme="dark"] .search-input-group {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.search-input-group:focus-within {
+    box-shadow: 0 0 0 2px var(--accent-blue);
+    background-color: transparent;
+}
+
+.search-input-group input {
+    background: transparent;
+    border: none;
+    outline: none;
+    box-shadow: none !important;
+}
+
+/* Card Styling */
+.card-connecthub {
+    background-color: var(--bg-card-light);
+    border: 1px solid var(--border-color-light);
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+[data-bs-theme="dark"] .card-connecthub {
+    background-color: var(--bg-card-dark);
+    border-color: var(--border-color-dark);
+}
+
+.card-connecthub:hover {
+    box-shadow: 0 12px 20px -4px rgba(0, 0, 0, 0.08);
+}
+
+/* Profile Header & Avatar */
+.profile-cover-container {
+    height: 220px;
+    border-top-left-radius: 1.25rem;
+    border-top-right-radius: 1.25rem;
+    overflow: hidden;
+    position: relative;
+    background: var(--primary-gradient);
+}
+
+.profile-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar-overlay {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 4px solid var(--bg-card-light);
+    margin-top: -65px;
+    object-fit: cover;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: border-color var(--transition-fast);
+}
+
+[data-bs-theme="dark"] .profile-avatar-overlay {
+    border-color: var(--bg-card-dark);
+}
+
+.avatar-sm {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-md {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-lg {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Post Styling */
+.post-image-container {
+    max-height: 520px;
+    overflow: hidden;
+    background-color: #000;
+    border-radius: 0.75rem;
+}
+
+.post-image-container img {
+    width: 100%;
+    max-height: 520px;
+    object-fit: contain;
+}
+
+/* Dynamic Buttons & Animations */
+.btn-accent {
+    background: var(--primary-gradient);
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    border-radius: 50rem;
+    padding: 0.5rem 1.25rem;
+    transition: all var(--transition-fast);
+}
+
+.btn-accent:hover {
+    opacity: 0.94;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+}
+
+.btn-whatsapp {
+    background-color: #25d366;
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    border-radius: 50rem;
+    transition: all var(--transition-fast);
+}
+
+.btn-whatsapp:hover {
+    background-color: #1da851;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.btn-like {
+    color: var(--text-secondary-light);
+    transition: all var(--transition-bounce);
+}
+
+[data-bs-theme="dark"] .btn-like {
+    color: var(--text-secondary-dark);
+}
+
+.btn-like.liked {
+    color: var(--heart-color) !important;
+    animation: heartPulse 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+
+.btn-save.saved {
+    color: var(--bookmark-color) !important;
+}
+
+.btn-follow {
+    border-radius: 50rem;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+/* Sidebar Links */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    color: var(--text-secondary-light);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+[data-bs-theme="dark"] .sidebar-link {
+    color: var(--text-secondary-dark);
+}
+
+.sidebar-link:hover, .sidebar-link.active {
+    background-color: rgba(2, 132, 199, 0.1);
+    color: var(--accent-blue);
+}
+
+/* Notification Item */
+.notification-item {
+    border-left: 3px solid transparent;
+    transition: background-color var(--transition-fast);
+}
+
+.notification-item.unread {
+    background-color: rgba(2, 132, 199, 0.06);
+    border-left-color: var(--accent-blue);
+}
+
+/* Toast Notifications Container */
+.toast-container-fixed {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 1090;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #475569;
+}

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results – MyFriend{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Search Query Header -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8 text-center">
+            <h4 class="fw-bold mb-3"><i class="fas fa-search text-primary me-2"></i> Search MyFriend</h4>
+            <form method="GET" action="{% url 'search' %}" class="d-flex gap-2">
+                <input type="text" name="q" value="{{ query }}" class="form-control form-control-lg rounded-pill shadow-sm" placeholder="Search for people by name/username or posts by content..." required>
+                <button type="submit" class="btn btn-accent px-4 rounded-pill">Search</button>
+            </form>
+        </div>
+    </div>
+
+    {% if query %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Nav Tabs for People vs Posts -->
+            <ul class="nav nav-pills justify-content-center mb-4 gap-2 border-bottom pb-2" id="searchTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active rounded-pill px-4" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-pane" type="button" role="tab">
+                        <i class="fas fa-users me-2"></i> People ({{ users_results|length }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill px-4" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-pane" type="button" role="tab">
+                        <i class="fas fa-newspaper me-2"></i> Posts ({{ posts_results|length }})
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="searchTabsContent">
+                <!-- People Search Results Tab -->
+                <div class="tab-pane fade show active" id="users-pane" role="tabpanel">
+                    {% if users_results %}
+                        <div class="row g-3">
+                            {% for user_item in users_results %}
+                            <div class="col-md-6">
+                                <div class="card card-connecthub p-3 h-100">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <a href="{% url 'profile' username=user_item.username %}">
+                                                <img src="{{ user_item.profile.avatar_url }}" class="avatar-md" alt="Avatar">
+                                            </a>
+                                            <div class="text-truncate" style="max-width: 140px;">
+                                                <a href="{% url 'profile' username=user_item.username %}" class="fw-bold text-decoration-none text-reset d-block text-truncate">
+                                                    {{ user_item.get_full_name|default:user_item.username }}
+                                                </a>
+                                                <span class="text-muted small d-block text-truncate">@{{ user_item.username }}</span>
+                                            </div>
+                                        </div>
+
+                                        {% if user_item != user %}
+                                        <button class="btn btn-sm btn-follow-trigger {% if user_item.id in user_following_ids %}btn-secondary{% else %}btn-accent{% endif %} py-1 px-3" data-user-id="{{ user_item.id }}">
+                                            {% if user_item.id in user_following_ids %}Following{% else %}Follow{% endif %}
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="card card-connecthub text-center p-5">
+                            <i class="fas fa-user-slash text-muted display-4 mb-3"></i>
+                            <h6 class="fw-bold">No people matched "{{ query }}"</h6>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Posts Search Results Tab -->
+                <div class="tab-pane fade" id="posts-pane" role="tabpanel">
+                    {% if posts_results %}
+                        {% for post in posts_results %}
+                        <div class="card card-connecthub mb-4">
+                            <div class="card-header bg-transparent border-0 d-flex align-items-center gap-2 p-3 pb-0">
+                                <a href="{% url 'profile' username=post.author.username %}">
+                                    <img src="{{ post.author.profile.avatar_url }}" class="avatar-md" alt="Avatar">
+                                </a>
+                                <div>
+                                    <h6 class="fw-bold mb-0">
+                                        <a href="{% url 'profile' username=post.author.username %}" class="text-decoration-none text-reset">
+                                            {{ post.author.get_full_name|default:post.author.username }}
+                                        </a>
+                                    </h6>
+                                    <span class="text-muted small">@{{ post.author.username }} • {{ post.created_at|timesince }} ago</span>
+                                </div>
+                            </div>
+                            <div class="card-body px-3 py-2">
+                                <p class="card-text text-break mb-2">{{ post.caption|linebreaksbr }}</p>
+                                {% if post.image %}
+                                <div class="post-image-container mb-2">
+                                    <a href="{% url 'post_detail' post_id=post.id %}">
+                                        <img src="{{ post.image.url }}" alt="Post Media" class="img-fluid rounded-3">
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="card card-connecthub text-center p-5">
+                            <i class="fas fa-file-excel text-muted display-4 mb-3"></i>
+                            <h6 class="fw-bold">No posts matched "{{ query }}"</h6>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

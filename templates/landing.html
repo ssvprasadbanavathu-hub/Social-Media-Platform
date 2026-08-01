@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MyFriend – Connect, Share & Engage{% endblock %}
+
+{% block content %}
+<div class="container my-auto">
+    <!-- Hero Section -->
+    <div class="row align-items-center justify-content-center min-vh-75 py-5">
+        <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fs-6 fw-semibold mb-3">
+                <i class="fas fa-sparkles me-1"></i> Authentic Social Connection
+            </span>
+            <h1 class="display-4 fw-extrabold mb-3">
+                Connect with the people who matter on <span class="brand-gradient">MyFriend</span>
+            </h1>
+            <p class="lead text-muted mb-4">
+                Share your moments, engage in real-time conversations, discover inspiring friends, and build your digital community—all in one seamless, responsive platform.
+            </p>
+            <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                <a href="{% url 'register' %}" class="btn btn-accent btn-lg px-4 py-3 shadow-sm">
+                    <i class="fas fa-user-plus me-2"></i> Join MyFriend Now
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-4 py-3 rounded-pill">
+                    <i class="fas fa-right-to-bracket me-2"></i> Log In
+                </a>
+            </div>
+
+            <!-- Stats Counter Bar -->
+            <div class="row text-center mt-5 pt-3 border-top g-3">
+                <div class="col-4">
+                    <h3 class="fw-bold brand-gradient mb-0">100%</h3>
+                    <p class="text-muted small mb-0">Open & Secure</p>
+                </div>
+                <div class="col-4">
+                    <h3 class="fw-bold brand-gradient mb-0">Instant</h3>
+                    <p class="text-muted small mb-0">AJAX Likes & Comments</p>
+                </div>
+                <div class="col-4">
+                    <h3 class="fw-bold brand-gradient mb-0">Real-Time</h3>
+                    <p class="text-muted small mb-0">Alerts & Updates</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 text-center">
+            <div class="position-relative">
+                <div class="card card-connecthub border-0 shadow-lg p-4 mx-auto" style="max-width: 480px;">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="brand-icon-box fw-bold fs-5">MF</div>
+                        <div class="text-start">
+                            <h6 class="fw-bold mb-0">MyFriend Community</h6>
+                            <span class="text-muted small">@myfriend</span>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80" class="img-fluid rounded-3 mb-3" alt="Community Showcase">
+                    <p class="text-start mb-3">Welcome to MyFriend! Connect with your friends, publish posts, like, comment, and build meaningful relationships.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Showcase Section -->
+    <div class="py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-2">Everything You Need in a Modern Social Platform</h2>
+            <p class="text-muted">Designed for fast performance, responsive layout, and seamless user interactions.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card card-connecthub h-100 p-4 border-0 shadow-sm text-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-bolt fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold">AJAX Interactions</h5>
+                    <p class="text-muted small mb-0">Like posts, drop comments, and follow creators instantly without refreshing the page.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-connecthub h-100 p-4 border-0 shadow-sm text-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-user-group fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold">Rich User Profiles</h5>
+                    <p class="text-muted small mb-0">Customize avatars, cover photos, bio, location, and manage your followers easily.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-connecthub h-100 p-4 border-0 shadow-sm text-center">
+                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-bell fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold">Real-time Notifications</h5>
+                    <p class="text-muted small mb-0">Stay updated with instant unread badges for likes, comments, and new followers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
