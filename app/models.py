@@ -30,13 +30,19 @@ class UserProfile(models.Model):
     @property
     def avatar_url(self):
         if self.profile_image and hasattr(self.profile_image, 'url'):
-            return self.profile_image.url
+            try:
+                return self.profile_image.url
+            except Exception:
+                pass
         return f"https://ui-avatars.com/api/?name={self.user.username}&background=0284c7&color=fff&size=150"
 
     @property
     def cover_url(self):
         if self.cover_image and hasattr(self.cover_image, 'url'):
-            return self.cover_image.url
+            try:
+                return self.cover_image.url
+            except Exception:
+                pass
         return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80"
 
 
@@ -52,6 +58,15 @@ class Post(models.Model):
 
     def __str__(self):
         return f"Post by {self.author.username} on {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
+    @property
+    def image_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            try:
+                return self.image.url
+            except Exception:
+                return None
+        return None
 
     @property
     def likes_count(self):

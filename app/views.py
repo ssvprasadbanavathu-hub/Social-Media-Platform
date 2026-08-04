@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseForbidden
 from django.core.paginator import Paginator
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Prefetch
 from django.views.decorators.http import require_POST
 
 from app.models import UserProfile, Post, Comment, Like, Follow, Notification, SavedPost
@@ -39,7 +39,7 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, f"Welcome to MyFriend, {user.username}! Your account has been created.")
+            messages.success(request, f"Welcome to MyFriend, {user.username}! Your account has been created successfully.")
             return redirect('home')
         else:
             messages.error(request, "Please correct the errors below.")
@@ -50,7 +50,7 @@ def register_view(request):
 
 
 def login_view(request):
-    """User login view."""
+    """User login view with username/email support and inactive user detection."""
     if request.user.is_authenticated:
         return redirect('home')
 
@@ -58,21 +58,32 @@ def login_view(request):
         username_or_email = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
 
+        if not username_or_email or not password:
+            messages.error(request, "Please fill in all fields.")
+            return render(request, 'login.html')
+
         user = None
-        if '@' in username_or_email:
-            try:
-                user_obj = User.objects.get(email__iexact=username_or_email)
-                user = authenticate(request, username=user_obj.username, password=password)
-            except User.DoesNotExist:
-                user = None
-        else:
-            user = authenticate(request, username=username_or_email, password=password)
+        # Check by email or username
+        user_candidates = User.objects.filter(
+            Q(username__iexact=username_or_email) | Q(email__iexact=username_or_email)
+        )
+
+        target_candidate = user_candidates.first()
+        if target_candidate and not target_candidate.is_active:
+            messages.error(request, "Your account is currently inactive. Please contact support.")
+            return render(request, 'login.html')
+
+        if target_candidate:
+            user = authenticate(request, username=target_candidate.username, password=password)
 
         if user is not None:
-            login(request, user)
-            messages.success(request, f"Welcome back, {user.username}!")
-            next_url = request.GET.get('next')
-            return redirect(next_url if next_url else 'home')
+            if user.is_active:
+                login(request, user)
+                messages.success(request, f"Welcome back, {user.username}!")
+                next_url = request.GET.get('next')
+                return redirect(next_url if next_url else 'home')
+            else:
+                messages.error(request, "Your account is currently inactive.")
         else:
             messages.error(request, "Invalid username/email or password.")
 
@@ -89,7 +100,7 @@ def logout_view(request):
 
 @login_required
 def home_view(request):
-    """Main feed displaying posts from followed users + user's own posts, or global feed."""
+    """Main feed displaying posts from followed users + user's own posts, optimized against N+1 queries."""
     post_form = PostForm()
     comment_form = CommentForm()
 
@@ -110,7 +121,13 @@ def home_view(request):
     if feed_posts.count() < 3:
         feed_posts = Post.objects.all()
 
-    feed_posts = feed_posts.select_related('author', 'author__profile').prefetch_related('likes', 'comments')
+    # Optimize with select_related and prefetch_related
+    comments_prefetch = Prefetch(
+        'comments',
+        queryset=Comment.objects.select_related('author', 'author__profile').order_by('created_at')
+    )
+
+    feed_posts = feed_posts.select_related('author', 'author__profile').prefetch_related('likes', comments_prefetch)
 
     paginator = Paginator(feed_posts, 10)
     page_number = request.GET.get('page')
@@ -120,7 +137,7 @@ def home_view(request):
     saved_post_ids = set(SavedPost.objects.filter(user=request.user, post__in=page_obj.object_list).values_list('post_id', flat=True))
 
     suggested_users = User.objects.exclude(id__in=followed_user_ids).select_related('profile')[:5]
-    trending_users = User.objects.exclude(id=request.user.id).annotate(followers_cnt=Count('followers_set')).order_by('-followers_cnt')[:5]
+    trending_users = User.objects.exclude(id=request.user.id).select_related('profile').annotate(followers_cnt=Count('followers_set')).order_by('-followers_cnt')[:5]
 
     context = {
         'page_obj': page_obj,
@@ -146,13 +163,18 @@ def profile_view(request, username):
 
     active_tab = request.GET.get('tab', 'posts')
 
+    comments_prefetch = Prefetch(
+        'comments',
+        queryset=Comment.objects.select_related('author', 'author__profile').order_by('created_at')
+    )
+
     if active_tab == 'saved' and is_self:
-        posts = Post.objects.filter(saved_by__user=request.user).select_related('author', 'author__profile')
+        posts = Post.objects.filter(saved_by__user=request.user).select_related('author', 'author__profile').prefetch_related('likes', comments_prefetch)
     elif active_tab == 'liked' and is_self:
-        posts = Post.objects.filter(likes__user=request.user).select_related('author', 'author__profile')
+        posts = Post.objects.filter(likes__user=request.user).select_related('author', 'author__profile').prefetch_related('likes', comments_prefetch)
     else:
         active_tab = 'posts'
-        posts = Post.objects.filter(author=profile_user).select_related('author', 'author__profile')
+        posts = Post.objects.filter(author=profile_user).select_related('author', 'author__profile').prefetch_related('likes', comments_prefetch)
 
     paginator = Paginator(posts, 12)
     page_number = request.GET.get('page')
@@ -208,7 +230,7 @@ def edit_profile_view(request):
 @login_required
 def followers_view(request, username):
     """Display list of followers for a given user."""
-    target_user = get_object_or_404(User, username__iexact=username)
+    target_user = get_object_or_404(User.objects.select_related('profile'), username__iexact=username)
     followers_relations = Follow.objects.filter(following=target_user).select_related('follower', 'follower__profile')
 
     user_following_ids = set(request.user.following_set.values_list('following_id', flat=True))
@@ -224,7 +246,7 @@ def followers_view(request, username):
 @login_required
 def following_view(request, username):
     """Display list of users followed by a given user."""
-    target_user = get_object_or_404(User, username__iexact=username)
+    target_user = get_object_or_404(User.objects.select_related('profile'), username__iexact=username)
     following_relations = Follow.objects.filter(follower=target_user).select_related('following', 'following__profile')
 
     user_following_ids = set(request.user.following_set.values_list('following_id', flat=True))
@@ -263,6 +285,11 @@ def search_view(request):
     users_results = []
     posts_results = []
 
+    comments_prefetch = Prefetch(
+        'comments',
+        queryset=Comment.objects.select_related('author', 'author__profile').order_by('created_at')
+    )
+
     if query:
         users_results = User.objects.filter(
             Q(username__icontains=query) |
@@ -272,7 +299,7 @@ def search_view(request):
 
         posts_results = Post.objects.filter(
             caption__icontains=query
-        ).select_related('author', 'author__profile')[:20]
+        ).select_related('author', 'author__profile').prefetch_related('likes', comments_prefetch).distinct()[:20]
 
     user_following_ids = set(request.user.following_set.values_list('following_id', flat=True))
     liked_post_ids = set(Like.objects.filter(user=request.user, post__in=posts_results).values_list('post_id', flat=True))
@@ -311,7 +338,10 @@ def settings_view(request):
 @login_required
 def post_detail_view(request, post_id):
     """Detailed view for a single post with comments."""
-    post = get_object_or_404(Post.objects.select_related('author', 'author__profile'), id=post_id)
+    post = get_object_or_404(
+        Post.objects.select_related('author', 'author__profile').prefetch_related('likes'),
+        id=post_id
+    )
     comments = post.comments.select_related('author', 'author__profile').all()
     comment_form = CommentForm()
 
@@ -432,7 +462,7 @@ def save_post_ajax(request, post_id):
 @require_POST
 def follow_user_ajax(request, user_id):
     """AJAX endpoint to follow/unfollow a user."""
-    target_user = get_object_or_404(User, id=user_id)
+    target_user = get_object_or_404(User.objects.select_related('profile'), id=user_id)
 
     if target_user == request.user:
         return JsonResponse({'error': 'You cannot follow yourself.'}, status=400)

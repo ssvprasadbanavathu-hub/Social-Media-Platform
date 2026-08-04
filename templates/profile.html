@@ -137,10 +137,10 @@
 
                     <div class="card-body px-3 py-2">
                         <p class="card-text text-break mb-2">{{ post.caption|linebreaksbr }}</p>
-                        {% if post.image %}
+                        {% if post.image_url %}
                         <div class="post-image-container mb-2">
                             <a href="{% url 'post_detail' post_id=post.id %}">
-                                <img src="{{ post.image.url }}" alt="Post Media" class="img-fluid rounded-3">
+                                <img src="{{ post.image_url }}" alt="Post Media" class="img-fluid rounded-3" onerror="this.style.display='none'">
                             </a>
                         </div>
                         {% endif %}

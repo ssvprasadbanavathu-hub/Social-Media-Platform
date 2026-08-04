@@ -1,6 +1,21 @@
+import os
 from django import forms
 from django.contrib.auth.models import User
 from app.models import UserProfile, Post, Comment
+
+
+def validate_image_file(image):
+    """Validate uploaded image file size and extension."""
+    if image:
+        # 5MB size limit
+        if image.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("Image file size must be 5MB or smaller.")
+        
+        valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+        ext = os.path.splitext(image.name)[1].lower()
+        if ext not in valid_extensions:
+            raise forms.ValidationError("Unsupported image format. Allowed formats: JPG, JPEG, PNG, GIF, WEBP.")
+    return image
 
 
 class UserRegisterForm(forms.ModelForm):
@@ -43,15 +58,19 @@ class UserRegisterForm(forms.ModelForm):
         }
 
     def clean_username(self):
-        username = self.cleaned_data.get('username')
+        username = self.cleaned_data.get('username', '').strip()
+        if not username:
+            raise forms.ValidationError("Username cannot be empty.")
         if User.objects.filter(username__iexact=username).exists():
             raise forms.ValidationError("This username is already taken. Please choose another.")
         return username
 
     def clean_email(self):
-        email = self.cleaned_data.get('email')
+        email = self.cleaned_data.get('email', '').strip()
+        if not email:
+            raise forms.ValidationError("Email address cannot be empty.")
         if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError("An account with this email already exists.")
+            raise forms.ValidationError("An account with this email address already exists.")
         return email
 
     def clean(self):
@@ -98,6 +117,13 @@ class UserUpdateForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email']
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip()
+        existing = User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk)
+        if existing.exists():
+            raise forms.ValidationError("An account with this email address already exists.")
+        return email
+
 
 class ProfileUpdateForm(forms.ModelForm):
     bio = forms.CharField(
@@ -127,6 +153,12 @@ class ProfileUpdateForm(forms.ModelForm):
         model = UserProfile
         fields = ['bio', 'location', 'website', 'profile_image', 'cover_image']
 
+    def clean_profile_image(self):
+        return validate_image_file(self.cleaned_data.get('profile_image'))
+
+    def clean_cover_image(self):
+        return validate_image_file(self.cleaned_data.get('cover_image'))
+
 
 class PostForm(forms.ModelForm):
     caption = forms.CharField(
@@ -149,6 +181,9 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['caption', 'image']
+
+    def clean_image(self):
+        return validate_image_file(self.cleaned_data.get('image'))
 
 
 class CommentForm(forms.ModelForm):

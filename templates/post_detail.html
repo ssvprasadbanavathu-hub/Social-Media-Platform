@@ -55,9 +55,9 @@
                 <!-- Post Content -->
                 <div class="card-body px-3 py-3">
                     <p class="card-text fs-5 text-break mb-3">{{ post.caption|linebreaksbr }}</p>
-                    {% if post.image %}
+                    {% if post.image_url %}
                     <div class="post-image-container mb-3">
-                        <img src="{{ post.image.url }}" alt="Post Image" class="img-fluid rounded-3">
+                        <img src="{{ post.image_url }}" alt="Post Image" class="img-fluid rounded-3" onerror="this.style.display='none'">
                     </div>
                     {% endif %}
                 </div>
